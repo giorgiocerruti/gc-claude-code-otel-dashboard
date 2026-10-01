@@ -1,4 +1,4 @@
-# Claude Code OTel Dashboard
+# GC Claude Code OTel Dashboard
 
 Stack Docker pronto all'uso per capire **dove vanno i token di Claude Code**: costo e token per modello, sessione, tipo (input / output / cache read / cache write), cache hit ratio, subagent vs sessione principale, attivita' e produttivita'.
 
@@ -10,9 +10,29 @@ Tutto gira in locale. Nessun dato lascia la tua macchina.
 
 ## Screenshot
 
-![Overview e leaderboard](docs/images/01-overview-leaderboards.png)
-![Costi e token](docs/images/02-cost-tokens.png)
-![Attivita'](docs/images/03-activity.png)
+### 1. Overview
+
+Colpo d'occhio sul periodo selezionato: sessioni, costo e token totali, commit, righe di codice, tempo attivo. **Tokens by Type** mostra la proporzione tra input, output, cache read e cache creation. **Cache hit ratio** indica quanto contesto viene riletto dalla cache invece di essere rielaborato. In alto i filtri Organization, User e Model valgono per tutta la dashboard.
+
+![Overview](docs/images/01-overview.png)
+
+### 2. Leaderboard
+
+Chi e cosa consuma di piu': utenti e sessioni per costo e token, costo per modello, decisioni sugli edit per linguaggio, sessioni per terminale. Serve a individuare le sessioni "pesanti" e a vedere quanto pesa un modello costoso come Opus rispetto a Sonnet o Haiku.
+
+![Leaderboard](docs/images/02-leaderboards.png)
+
+### 3. Costi e token
+
+L'andamento nel tempo (rate in dollari/ora e token/s) per modello e per tipo di token. In fondo i due pannelli piu' utili per capire gli sprechi: **Cost by query_source** separa `main`, `subagent` e `auxiliary`, **Cost by effort** separa i livelli di effort del modello.
+
+![Costi e token](docs/images/03-cost-tokens.png)
+
+### 4. Attivita' e produttivita'
+
+Tempo attivo, righe di codice aggiunte e rimosse, decisioni accept / reject sui tool. Utile per mettere in relazione il consumo con il lavoro prodotto.
+
+![Attivita'](docs/images/04-activity.png)
 
 ## Cosa c'e' dentro
 
@@ -34,8 +54,8 @@ La dashboard e' [Claude Code Metrics (Prometheus)](https://grafana.com/grafana/d
 1. Avvia lo stack:
 
    ```bash
-   git clone https://github.com/giorgiocerruti/claude-code-otel-dashboard.git
-   cd claude-code-otel-dashboard
+   git clone https://github.com/giorgiocerruti/gc-claude-code-otel-dashboard.git
+   cd gc-claude-code-otel-dashboard
    docker compose up -d --build
    ```
 
