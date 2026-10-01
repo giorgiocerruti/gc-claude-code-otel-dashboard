@@ -81,8 +81,8 @@ Devono comparire, tra le altre, `claude_code_token_usage_tokens_total` e `claude
 
 | Metrica | Label utili |
 |---|---|
-| `claude_code_token_usage_tokens_total` | `type`, `model`, `session_id`, `query_source` |
-| `claude_code_cost_usage_USD_total` | `model`, `session_id`, `query_source`, `effort` |
+| `claude_code_token_usage_tokens_total` | `type`, `model`, `session_id`, `query_source`, `agent_name`, `mcp_server_name`, `effort` |
+| `claude_code_cost_usage_USD_total` | `model`, `session_id`, `query_source`, `agent_name`, `mcp_server_name`, `effort` |
 | `claude_code_session_count_total` | |
 | `claude_code_active_time_seconds_total` | |
 | `claude_code_lines_of_code_count_total`, `claude_code_commit_count_total`, `claude_code_pull_request_count_total`, `claude_code_code_edit_tool_decision_total` | |
@@ -103,6 +103,12 @@ Sessioni piu' costose, ultimi 7 giorni:
 
 ```
 topk(10, sum by (session_id) (increase(claude_code_cost_usage_USD_total[7d])))
+```
+
+Costo per agente (`agent_name`), ultimi 7 giorni:
+
+```
+topk(10, sum by (agent_name) (increase(claude_code_cost_usage_USD_total[7d])))
 ```
 
 Quota di costo dei subagent:
