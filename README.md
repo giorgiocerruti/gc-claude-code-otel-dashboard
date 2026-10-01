@@ -79,6 +79,55 @@ La dashboard e' [Claude Code Metrics (Prometheus)](https://grafana.com/grafana/d
 
 I primi dati compaiono 1-2 minuti dopo la prima risposta del modello in una sessione avviata dopo il passo 3.
 
+## Quota rimasta e consumo per progetto
+
+Le metriche OTel di Claude Code non contengono ne' la quota rimasta ne' il progetto. Si aggiungono con due piccoli script in `scripts/`.
+
+### Quota 5h e settimanale
+
+La statusline di Claude Code riceve dal client `rate_limits.five_hour` e `rate_limits.seven_day` (percentuale usata e orario di reset, solo su abbonamenti Pro/Max, dopo la prima risposta del modello). `scripts/push-quota.sh` legge quel JSON e invia al collector due gauge:
+
+| Metrica | Label |
+|---|---|
+| `claude_quota_used_percent` | `window` = `5h` o `7d` |
+| `claude_quota_resets_at_timestamp_seconds` | `window` = `5h` o `7d` |
+
+Non esiste un limite giornaliero: la **sessione** e' la finestra di 5 ore, il limite **settimanale** e' quella di 7 giorni.
+
+Installazione (servono `jq` e `curl`):
+
+```bash
+mkdir -p ~/.claude/otel
+cp scripts/push-quota.sh scripts/claude-otel-project.zsh ~/.claude/otel/
+chmod +x ~/.claude/otel/push-quota.sh
+```
+
+Nello script della statusline (`~/.claude/settings.json` -> `statusLine.command`), subito dopo la lettura dell'input (`input=$(cat)`), aggiungi:
+
+```bash
+echo "$input" | "$HOME/.claude/otel/push-quota.sh" >/dev/null 2>&1 &
+```
+
+Se non hai una statusline personalizzata, ne basta una che esegue solo quella riga e stampa qualcosa. L'invio e' limitato a uno ogni 20 secondi (`OTEL_QUOTA_MIN_INTERVAL`). L'endpoint di default e' `http://localhost:4318/v1/metrics` (`OTEL_QUOTA_ENDPOINT`).
+
+### Nome del progetto
+
+Claude Code non dice in quale progetto sta lavorando una sessione. `scripts/claude-otel-project.zsh` definisce una funzione `claude` che imposta `OTEL_RESOURCE_ATTRIBUTES=project.name=<nome>` prima di avviarlo. Il nome e' quello del repository git (anche dai worktree, che puntano al repository principale), altrimenti quello della cartella. In Prometheus diventa la label `project_name`.
+
+Aggiungi a `~/.zshrc`:
+
+```bash
+source "$HOME/.claude/otel/claude-otel-project.zsh"
+```
+
+Vale solo per le sessioni avviate da quella shell dopo l'installazione. Le altre compaiono come `(non assegnato)`. L'agente principale senza `agent_name` compare come `(sessione principale)`.
+
+### Cosa mostrano i nuovi pannelli
+
+- **Quota**: percentuale usata e rimasta per 5h e 7d, tempo al reset, andamento, velocita' di consumo in %/ora e **previsione della quota settimanale al reset** (sopra 100% finisci il budget prima del reset).
+- **Chi consuma**: costo per progetto, agente e modello nel periodo selezionato, costo e token per progetto nel tempo, tabella progetto x agente x modello.
+- **Stima % quota 7d** per progetto, agente e modello: la quota settimanale usata ripartita in proporzione al costo degli ultimi 7 giorni. E' una **stima**: il costo calcolato dal client approssima il peso reale sul limite, e la finestra di 7 giorni scorrevole non coincide esattamente con quella del reset.
+
 ## Porte
 
 Tutte le porte sono legate a `127.0.0.1`.
@@ -101,8 +150,8 @@ Devono comparire, tra le altre, `claude_code_token_usage_tokens_total` e `claude
 
 | Metrica | Label utili |
 |---|---|
-| `claude_code_token_usage_tokens_total` | `type`, `model`, `session_id`, `query_source`, `agent_name`, `mcp_server_name`, `effort` |
-| `claude_code_cost_usage_USD_total` | `model`, `session_id`, `query_source`, `agent_name`, `mcp_server_name`, `effort` |
+| `claude_code_token_usage_tokens_total` | `type`, `model`, `session_id`, `query_source`, `agent_name`, `mcp_server_name`, `effort`, `project_name` |
+| `claude_code_cost_usage_USD_total` | `model`, `session_id`, `query_source`, `agent_name`, `mcp_server_name`, `effort`, `project_name` |
 | `claude_code_session_count_total` | |
 | `claude_code_active_time_seconds_total` | |
 | `claude_code_lines_of_code_count_total`, `claude_code_commit_count_total`, `claude_code_pull_request_count_total`, `claude_code_code_edit_tool_decision_total` | |

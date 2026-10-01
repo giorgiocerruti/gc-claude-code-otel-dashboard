@@ -37,12 +37,1032 @@
  "liveNow": false,
  "panels": [
   {
+   "id": 100,
+   "type": "row",
+   "title": "Quota (limiti di abbonamento)",
+   "collapsed": false,
+   "gridPos": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 1
+   },
+   "panels": []
+  },
+  {
+   "id": 101,
+   "type": "gauge",
+   "title": "Sessione 5h: usata",
+   "description": "Percentuale usata della finestra di 5 ore (rate_limits.five_hour della statusline).",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 1,
+    "w": 4,
+    "h": 6
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "percent",
+     "color": {
+      "mode": "thresholds"
+     },
+     "thresholds": {
+      "mode": "absolute",
+      "steps": [
+       {
+        "color": "green",
+        "value": null
+       },
+       {
+        "color": "yellow",
+        "value": 70
+       },
+       {
+        "color": "red",
+        "value": 90
+       }
+      ]
+     },
+     "min": 0,
+     "max": 100
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "claude_quota_used_percent{window=\"5h\"}",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "showThresholdMarkers": true
+   }
+  },
+  {
+   "id": 102,
+   "type": "gauge",
+   "title": "Settimana 7d: usata",
+   "description": "Percentuale usata del limite settimanale (rate_limits.seven_day).",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 4,
+    "y": 1,
+    "w": 4,
+    "h": 6
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "percent",
+     "color": {
+      "mode": "thresholds"
+     },
+     "thresholds": {
+      "mode": "absolute",
+      "steps": [
+       {
+        "color": "green",
+        "value": null
+       },
+       {
+        "color": "yellow",
+        "value": 70
+       },
+       {
+        "color": "red",
+        "value": 90
+       }
+      ]
+     },
+     "min": 0,
+     "max": 100
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "claude_quota_used_percent{window=\"7d\"}",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "showThresholdMarkers": true
+   }
+  },
+  {
+   "id": 103,
+   "type": "stat",
+   "title": "Sessione 5h: rimasta",
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 8,
+    "y": 1,
+    "w": 4,
+    "h": 6
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "percent",
+     "color": {
+      "mode": "thresholds"
+     },
+     "thresholds": {
+      "mode": "absolute",
+      "steps": [
+       {
+        "color": "red",
+        "value": null
+       },
+       {
+        "color": "yellow",
+        "value": 10
+       },
+       {
+        "color": "green",
+        "value": 30
+       }
+      ]
+     }
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "100 - claude_quota_used_percent{window=\"5h\"}",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "colorMode": "value",
+    "graphMode": "area",
+    "textMode": "auto"
+   }
+  },
+  {
+   "id": 104,
+   "type": "stat",
+   "title": "Settimana 7d: rimasta",
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 12,
+    "y": 1,
+    "w": 4,
+    "h": 6
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "percent",
+     "color": {
+      "mode": "thresholds"
+     },
+     "thresholds": {
+      "mode": "absolute",
+      "steps": [
+       {
+        "color": "red",
+        "value": null
+       },
+       {
+        "color": "yellow",
+        "value": 10
+       },
+       {
+        "color": "green",
+        "value": 30
+       }
+      ]
+     }
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "100 - claude_quota_used_percent{window=\"7d\"}",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "colorMode": "value",
+    "graphMode": "area",
+    "textMode": "auto"
+   }
+  },
+  {
+   "id": 105,
+   "type": "stat",
+   "title": "Reset 5h tra",
+   "description": "Tempo al prossimo reset della finestra di 5 ore.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 16,
+    "y": 1,
+    "w": 4,
+    "h": 6
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "s",
+     "color": {
+      "mode": "palette-classic"
+     }
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "claude_quota_resets_at_timestamp_seconds{window=\"5h\"} - time()",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "colorMode": "value",
+    "graphMode": "area",
+    "textMode": "auto"
+   }
+  },
+  {
+   "id": 106,
+   "type": "stat",
+   "title": "Reset 7d tra",
+   "description": "Tempo al prossimo reset del limite settimanale.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 20,
+    "y": 1,
+    "w": 4,
+    "h": 6
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "s",
+     "color": {
+      "mode": "palette-classic"
+     }
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "claude_quota_resets_at_timestamp_seconds{window=\"7d\"} - time()",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "colorMode": "value",
+    "graphMode": "area",
+    "textMode": "auto"
+   }
+  },
+  {
+   "id": 107,
+   "type": "timeseries",
+   "title": "Quota usata nel tempo",
+   "description": "Il giorno non ha un limite proprio: la finestra di 5 ore e' la sessione, quella di 7 giorni e' il limite settimanale.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 7,
+    "w": 12,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "percent",
+     "color": {
+      "mode": "palette-classic"
+     },
+     "min": 0,
+     "max": 100
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "claude_quota_used_percent",
+     "legendFormat": "{{window}}"
+    }
+   ],
+   "options": {
+    "legend": {
+     "displayMode": "table",
+     "placement": "bottom",
+     "calcs": [
+      "lastNotNull",
+      "max"
+     ]
+    },
+    "tooltip": {
+     "mode": "multi",
+     "sort": "desc"
+    }
+   }
+  },
+  {
+   "id": 108,
+   "type": "timeseries",
+   "title": "Velocita' di consumo (% / ora)",
+   "description": "Quanta quota si consuma ogni ora. I reset (calo di quota) sono ignorati.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 12,
+    "y": 7,
+    "w": 6,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "percent",
+     "color": {
+      "mode": "palette-classic"
+     }
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "clamp_min(deriv(claude_quota_used_percent[15m]), 0) * 3600",
+     "legendFormat": "{{window}}"
+    }
+   ],
+   "options": {
+    "legend": {
+     "displayMode": "table",
+     "placement": "bottom",
+     "calcs": [
+      "lastNotNull",
+      "max"
+     ]
+    },
+    "tooltip": {
+     "mode": "multi",
+     "sort": "desc"
+    }
+   }
+  },
+  {
+   "id": 109,
+   "type": "stat",
+   "title": "Previsione settimana al reset",
+   "description": "Quota settimanale usata + velocita' media delle ultime 3 ore proiettata fino al reset. Sopra 100% = finirai il budget prima del reset.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 18,
+    "y": 7,
+    "w": 6,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "percent",
+     "color": {
+      "mode": "thresholds"
+     },
+     "thresholds": {
+      "mode": "absolute",
+      "steps": [
+       {
+        "color": "green",
+        "value": null
+       },
+       {
+        "color": "yellow",
+        "value": 70
+       },
+       {
+        "color": "red",
+        "value": 90
+       }
+      ]
+     }
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "claude_quota_used_percent{window=\"7d\"} + clamp_min(deriv(claude_quota_used_percent{window=\"7d\"}[3h]), 0) * (claude_quota_resets_at_timestamp_seconds{window=\"7d\"} - time())",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "colorMode": "value",
+    "graphMode": "area",
+    "textMode": "auto"
+   }
+  },
+  {
+   "id": 110,
+   "type": "row",
+   "title": "Chi consuma: progetto, agente, modello",
+   "collapsed": false,
+   "gridPos": {
+    "x": 0,
+    "y": 15,
+    "w": 24,
+    "h": 1
+   },
+   "panels": []
+  },
+  {
+   "id": 111,
+   "type": "bargauge",
+   "title": "Costo per progetto",
+   "description": "Serve la label project_name: avvia Claude Code con il wrapper in scripts/claude-otel-project.zsh. Le sessioni piu' vecchie sono '(non assegnato)'.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 16,
+    "w": 8,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "currencyUSD",
+     "color": {
+      "mode": "palette-classic"
+     }
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "label_replace(sum by (project_name) (increase(claude_code_cost_usage_USD_total{model=~\"$model\"}[$__range])), \"project_name\", \"(non assegnato)\", \"project_name\", \"\")",
+     "legendFormat": "{{project_name}}",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "orientation": "horizontal",
+    "displayMode": "gradient",
+    "showUnfilled": true,
+    "namePlacement": "top"
+   }
+  },
+  {
+   "id": 112,
+   "type": "bargauge",
+   "title": "Costo per agente",
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 8,
+    "y": 16,
+    "w": 8,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "currencyUSD",
+     "color": {
+      "mode": "palette-classic"
+     }
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "label_replace(sum by (agent_name) (increase(claude_code_cost_usage_USD_total{model=~\"$model\"}[$__range])), \"agent_name\", \"(sessione principale)\", \"agent_name\", \"\")",
+     "legendFormat": "{{agent_name}}",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "orientation": "horizontal",
+    "displayMode": "gradient",
+    "showUnfilled": true,
+    "namePlacement": "top"
+   }
+  },
+  {
+   "id": 113,
+   "type": "bargauge",
+   "title": "Costo per modello",
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 16,
+    "y": 16,
+    "w": 8,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "currencyUSD",
+     "color": {
+      "mode": "palette-classic"
+     }
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum by (model) (increase(claude_code_cost_usage_USD_total{model=~\"$model\"}[$__range]))",
+     "legendFormat": "{{model}}",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "orientation": "horizontal",
+    "displayMode": "gradient",
+    "showUnfilled": true,
+    "namePlacement": "top"
+   }
+  },
+  {
+   "id": 114,
+   "type": "bargauge",
+   "title": "Stima % quota 7d per progetto",
+   "description": "STIMA: quota settimanale usata ripartita in proporzione al costo degli ultimi 7 giorni. Il costo e' un'approssimazione del peso reale sul limite.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 24,
+    "w": 8,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "percent",
+     "color": {
+      "mode": "palette-classic"
+     }
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "label_replace(sum by (project_name) (increase(claude_code_cost_usage_USD_total[7d])) / scalar(sum(increase(claude_code_cost_usage_USD_total[7d]))) * scalar(claude_quota_used_percent{window=\"7d\"}), \"project_name\", \"(non assegnato)\", \"project_name\", \"\")",
+     "legendFormat": "{{project_name}}",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "orientation": "horizontal",
+    "displayMode": "gradient",
+    "showUnfilled": true,
+    "namePlacement": "top"
+   }
+  },
+  {
+   "id": 115,
+   "type": "bargauge",
+   "title": "Stima % quota 7d per agente",
+   "description": "Stima, come a sinistra.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 8,
+    "y": 24,
+    "w": 8,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "percent",
+     "color": {
+      "mode": "palette-classic"
+     }
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "label_replace(sum by (agent_name) (increase(claude_code_cost_usage_USD_total[7d])) / scalar(sum(increase(claude_code_cost_usage_USD_total[7d]))) * scalar(claude_quota_used_percent{window=\"7d\"}), \"agent_name\", \"(sessione principale)\", \"agent_name\", \"\")",
+     "legendFormat": "{{agent_name}}",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "orientation": "horizontal",
+    "displayMode": "gradient",
+    "showUnfilled": true,
+    "namePlacement": "top"
+   }
+  },
+  {
+   "id": 116,
+   "type": "bargauge",
+   "title": "Stima % quota 7d per modello",
+   "description": "Stima, come a sinistra.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 16,
+    "y": 24,
+    "w": 8,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "percent",
+     "color": {
+      "mode": "palette-classic"
+     }
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum by (model) (increase(claude_code_cost_usage_USD_total[7d])) / scalar(sum(increase(claude_code_cost_usage_USD_total[7d]))) * scalar(claude_quota_used_percent{window=\"7d\"})",
+     "legendFormat": "{{model}}",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "orientation": "horizontal",
+    "displayMode": "gradient",
+    "showUnfilled": true,
+    "namePlacement": "top"
+   }
+  },
+  {
+   "id": 117,
+   "type": "timeseries",
+   "title": "Costo per progetto ($/ora)",
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 32,
+    "w": 12,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "currencyUSD",
+     "color": {
+      "mode": "palette-classic"
+     }
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "label_replace(sum by (project_name) (rate(claude_code_cost_usage_USD_total{model=~\"$model\"}[$__rate_interval])) * 3600, \"project_name\", \"(non assegnato)\", \"project_name\", \"\")",
+     "legendFormat": "{{project_name}}"
+    }
+   ],
+   "options": {
+    "legend": {
+     "displayMode": "table",
+     "placement": "bottom",
+     "calcs": [
+      "lastNotNull",
+      "max"
+     ]
+    },
+    "tooltip": {
+     "mode": "multi",
+     "sort": "desc"
+    }
+   }
+  },
+  {
+   "id": 118,
+   "type": "timeseries",
+   "title": "Token per progetto, cache read esclusa (token/s)",
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 12,
+    "y": 32,
+    "w": 12,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "short",
+     "color": {
+      "mode": "palette-classic"
+     }
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "label_replace(sum by (project_name) (rate(claude_code_token_usage_tokens_total{type!=\"cacheRead\",model=~\"$model\"}[$__rate_interval])), \"project_name\", \"(non assegnato)\", \"project_name\", \"\")",
+     "legendFormat": "{{project_name}}"
+    }
+   ],
+   "options": {
+    "legend": {
+     "displayMode": "table",
+     "placement": "bottom",
+     "calcs": [
+      "lastNotNull",
+      "max"
+     ]
+    },
+    "tooltip": {
+     "mode": "multi",
+     "sort": "desc"
+    }
+   }
+  },
+  {
+   "id": 119,
+   "type": "table",
+   "title": "Progetto x agente x modello (costo nel periodo)",
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 40,
+    "w": 24,
+    "h": 10
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "currencyUSD",
+     "color": {
+      "mode": "palette-classic"
+     }
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "label_replace(label_replace(sum by (project_name, agent_name, model) (increase(claude_code_cost_usage_USD_total{model=~\"$model\"}[$__range])), \"project_name\", \"(non assegnato)\", \"project_name\", \"\"), \"agent_name\", \"(sessione principale)\", \"agent_name\", \"\")",
+     "legendFormat": "",
+     "instant": true,
+     "range": false,
+     "format": "table"
+    }
+   ],
+   "options": {
+    "showHeader": true,
+    "sortBy": [
+     {
+      "displayName": "Value",
+      "desc": true
+     }
+    ]
+   },
+   "transformations": [
+    {
+     "id": "organize",
+     "options": {
+      "excludeByName": {
+       "Time": true
+      },
+      "renameByName": {
+       "project_name": "Progetto",
+       "agent_name": "Agente",
+       "model": "Modello",
+       "Value": "Costo"
+      }
+     }
+    }
+   ]
+  },
+  {
    "collapsed": false,
    "gridPos": {
     "h": 1,
     "w": 24,
     "x": 0,
-    "y": 0
+    "y": 51
    },
    "id": 34,
    "title": "Overview",
@@ -77,7 +1097,7 @@
     "h": 4,
     "w": 3,
     "x": 0,
-    "y": 1
+    "y": 52
    },
    "id": 2,
    "options": {
@@ -143,7 +1163,7 @@
     "h": 4,
     "w": 3,
     "x": 3,
-    "y": 1
+    "y": 52
    },
    "id": 3,
    "options": {
@@ -217,7 +1237,7 @@
     "h": 4,
     "w": 3,
     "x": 6,
-    "y": 1
+    "y": 52
    },
    "id": 4,
    "options": {
@@ -283,7 +1303,7 @@
     "h": 4,
     "w": 3,
     "x": 9,
-    "y": 1
+    "y": 52
    },
    "id": 5,
    "options": {
@@ -349,7 +1369,7 @@
     "h": 4,
     "w": 3,
     "x": 12,
-    "y": 1
+    "y": 52
    },
    "id": 6,
    "options": {
@@ -415,7 +1435,7 @@
     "h": 4,
     "w": 3,
     "x": 15,
-    "y": 1
+    "y": 52
    },
    "id": 7,
    "options": {
@@ -481,7 +1501,7 @@
     "h": 4,
     "w": 3,
     "x": 18,
-    "y": 1
+    "y": 52
    },
    "id": 8,
    "options": {
@@ -547,7 +1567,7 @@
     "h": 4,
     "w": 3,
     "x": 21,
-    "y": 1
+    "y": 52
    },
    "id": 9,
    "options": {
@@ -644,7 +1664,7 @@
     "h": 6,
     "w": 6,
     "x": 0,
-    "y": 5
+    "y": 56
    },
    "id": 10,
    "options": {
@@ -771,7 +1791,7 @@
     "h": 6,
     "w": 6,
     "x": 6,
-    "y": 5
+    "y": 56
    },
    "id": 11,
    "options": {
@@ -868,7 +1888,7 @@
     "h": 6,
     "w": 6,
     "x": 12,
-    "y": 5
+    "y": 56
    },
    "id": 12,
    "options": {
@@ -946,7 +1966,7 @@
     "h": 6,
     "w": 6,
     "x": 18,
-    "y": 5
+    "y": 56
    },
    "id": 33,
    "options": {
@@ -999,7 +2019,7 @@
     "h": 1,
     "w": 24,
     "x": 0,
-    "y": 11
+    "y": 62
    },
    "id": 35,
    "title": "Leaderboards",
@@ -1032,7 +2052,7 @@
     "h": 5,
     "w": 6,
     "x": 0,
-    "y": 12
+    "y": 63
    },
    "id": 24,
    "options": {
@@ -1103,7 +2123,7 @@
     "h": 5,
     "w": 6,
     "x": 6,
-    "y": 12
+    "y": 63
    },
    "id": 25,
    "options": {
@@ -1174,7 +2194,7 @@
     "h": 5,
     "w": 12,
     "x": 12,
-    "y": 12
+    "y": 63
    },
    "id": 26,
    "options": {
@@ -1243,7 +2263,7 @@
     "h": 8,
     "w": 8,
     "x": 0,
-    "y": 17
+    "y": 68
    },
    "id": 27,
    "options": {
@@ -1313,7 +2333,7 @@
     "h": 8,
     "w": 8,
     "x": 8,
-    "y": 17
+    "y": 68
    },
    "id": 28,
    "options": {
@@ -1383,7 +2403,7 @@
     "h": 8,
     "w": 8,
     "x": 16,
-    "y": 17
+    "y": 68
    },
    "id": 29,
    "options": {
@@ -1434,7 +2454,7 @@
     "h": 1,
     "w": 24,
     "x": 0,
-    "y": 25
+    "y": 76
    },
    "id": 36,
    "title": "Cost & Tokens",
@@ -1501,7 +2521,7 @@
     "h": 8,
     "w": 12,
     "x": 0,
-    "y": 26
+    "y": 77
    },
    "id": 14,
    "options": {
@@ -1601,7 +2621,7 @@
     "h": 8,
     "w": 12,
     "x": 12,
-    "y": 26
+    "y": 77
    },
    "id": 15,
    "options": {
@@ -1763,7 +2783,7 @@
     "h": 8,
     "w": 12,
     "x": 0,
-    "y": 34
+    "y": 85
    },
    "id": 16,
    "options": {
@@ -1859,7 +2879,7 @@
     "h": 8,
     "w": 12,
     "x": 12,
-    "y": 34
+    "y": 85
    },
    "id": 17,
    "options": {
@@ -1919,7 +2939,7 @@
     "h": 8,
     "w": 12,
     "x": 0,
-    "y": 42
+    "y": 93
    },
    "id": 31,
    "options": {
@@ -1989,7 +3009,7 @@
     "h": 8,
     "w": 12,
     "x": 12,
-    "y": 42
+    "y": 93
    },
    "id": 32,
    "options": {
@@ -2040,7 +3060,7 @@
     "h": 1,
     "w": 24,
     "x": 0,
-    "y": 50
+    "y": 101
    },
    "id": 37,
    "title": "Activity & Productivity",
@@ -2139,7 +3159,7 @@
     "h": 8,
     "w": 24,
     "x": 0,
-    "y": 51
+    "y": 102
    },
    "id": 20,
    "options": {
@@ -2267,7 +3287,7 @@
     "h": 8,
     "w": 12,
     "x": 0,
-    "y": 59
+    "y": 110
    },
    "id": 21,
    "options": {
@@ -2395,7 +3415,7 @@
     "h": 8,
     "w": 12,
     "x": 12,
-    "y": 59
+    "y": 110
    },
    "id": 22,
    "options": {
@@ -2552,7 +3572,7 @@
   ]
  },
  "timezone": "browser",
- "title": "Claude Code Metrics (Prometheus)",
+ "title": "GC Claude Code Metrics",
  "uid": "cc-metrics",
  "gnetId": 25255
 }
