@@ -1,0 +1,32 @@
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.116.1
+    command: ["--config=/etc/otel-collector.yml"]
+    volumes:
+      - ./otel-collector/otel-collector.yml:/etc/otel-collector.yml:ro
+    ports:
+      - "127.0.0.1:4317:4317"   # OTLP gRPC
+      - "127.0.0.1:4318:4318"   # OTLP HTTP
+    restart: unless-stopped
+
+  prometheus:
+    build: ./prometheus
+    volumes:
+      - prom-data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    depends_on: [otel-collector]
+    restart: unless-stopped
+
+  grafana:
+    build: ./grafana
+    volumes:
+      - graf-data:/var/lib/grafana
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on: [prometheus]
+    restart: unless-stopped
+
+volumes:
+  prom-data:
+  graf-data:
