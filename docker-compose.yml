@@ -9,13 +9,22 @@ services:
       - "127.0.0.1:4318:4318"   # OTLP HTTP
     restart: unless-stopped
 
+  # Ollama gira sull'host (porta 11434), non in un container
+  ollama-exporter:
+    build: ./ollama-exporter
+    environment:
+      OLLAMA_URL: http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
   prometheus:
     build: ./prometheus
     volumes:
       - prom-data:/prometheus
     ports:
       - "127.0.0.1:9090:9090"
-    depends_on: [otel-collector]
+    depends_on: [otel-collector, ollama-exporter]
     restart: unless-stopped
 
   grafana:

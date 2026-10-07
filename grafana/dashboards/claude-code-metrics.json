@@ -1057,12 +1057,1037 @@
    ]
   },
   {
+   "id": 200,
+   "type": "row",
+   "title": "Modelli locali (Ollama) vs cloud",
+   "collapsed": false,
+   "gridPos": {
+    "x": 0,
+    "y": 51,
+    "w": 24,
+    "h": 1
+   },
+   "panels": []
+  },
+  {
+   "id": 201,
+   "type": "stat",
+   "title": "Token modelli locali",
+   "description": "Tutti i tipi di token, cache read inclusa. Locale = modelli che corrispondono alla variabile local_models.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 52,
+    "w": 4,
+    "h": 5
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     },
+     "unit": "short"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum(increase(claude_code_token_usage_tokens_total{model=~\"$local_models\"}[$__range])) or vector(0)",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "colorMode": "value",
+    "graphMode": "none"
+   }
+  },
+  {
+   "id": 202,
+   "type": "stat",
+   "title": "% token locali",
+   "description": "Quota di token input+output+cache creation gestita da modelli locali.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 4,
+    "y": 52,
+    "w": 4,
+    "h": 5
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     },
+     "unit": "percentunit",
+     "min": 0,
+     "max": 1
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum(increase(claude_code_token_usage_tokens_total{model=~\"$local_models\",type!=\"cacheRead\"}[$__range])) / sum(increase(claude_code_token_usage_tokens_total{type!=\"cacheRead\"}[$__range]))",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "colorMode": "value",
+    "graphMode": "none"
+   }
+  },
+  {
+   "id": 203,
+   "type": "stat",
+   "title": "Costo riportato dal client (locale)",
+   "description": "Cosa calcola Claude Code per i modelli non Anthropic. Con modelli sconosciuti spesso e' 0 o un prezzo di ripiego, per questo il risparmio si stima a parte.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 8,
+    "y": 52,
+    "w": 4,
+    "h": 5
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     },
+     "unit": "currencyUSD"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum(increase(claude_code_cost_usage_USD_total{model=~\"$local_models\"}[$__range])) or vector(0)",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "colorMode": "value",
+    "graphMode": "none"
+   }
+  },
+  {
+   "id": 204,
+   "type": "stat",
+   "title": "Risparmio stimato",
+   "description": "STIMA: token locali valorizzati ai prezzi di riferimento Anthropic (variabili price_* in alto, $ per milione di token). Non e' un costo reale: l'hardware locale ha un costo suo (energia, ammortamento).",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 12,
+    "y": 52,
+    "w": 4,
+    "h": 5
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "fixed",
+      "fixedColor": "green"
+     },
+     "unit": "currencyUSD"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "((sum(increase(claude_code_token_usage_tokens_total{model=~\"$local_models\",type=\"input\"}[$__range])) or vector(0)) * $price_in + (sum(increase(claude_code_token_usage_tokens_total{model=~\"$local_models\",type=\"output\"}[$__range])) or vector(0)) * $price_out + (sum(increase(claude_code_token_usage_tokens_total{model=~\"$local_models\",type=\"cacheRead\"}[$__range])) or vector(0)) * $price_cache_read + (sum(increase(claude_code_token_usage_tokens_total{model=~\"$local_models\",type=\"cacheCreation\"}[$__range])) or vector(0)) * $price_cache_write) / 1e6",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "colorMode": "background",
+    "graphMode": "none"
+   }
+  },
+  {
+   "id": 205,
+   "type": "stat",
+   "title": "Richieste ai modelli locali",
+   "description": "Sessioni che hanno usato almeno un modello locale nel periodo.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 16,
+    "y": 52,
+    "w": 4,
+    "h": 5
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     },
+     "unit": "short"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "count(sum by (session_id) (increase(claude_code_token_usage_tokens_total{model=~\"$local_models\"}[$__range])) > 0) or vector(0)",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "colorMode": "value",
+    "graphMode": "none"
+   }
+  },
+  {
+   "id": 218,
+   "type": "stat",
+   "title": "Costo open-weight cloud (Kimi ecc.)",
+   "description": "Costo riportato dal client per i modelli open-weight a pagamento (variabile openweight_models). Controlla con la fattura del provider: il client non conosce i loro prezzi.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 20,
+    "y": 52,
+    "w": 4,
+    "h": 5
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     },
+     "unit": "currencyUSD"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum(increase(claude_code_cost_usage_USD_total{model=~\"$openweight_models\"}[$__range])) or vector(0)",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "colorMode": "value",
+    "graphMode": "none"
+   }
+  },
+  {
+   "id": 206,
+   "type": "piechart",
+   "title": "Token: locale vs open-weight cloud vs Claude (cache read esclusa)",
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 57,
+    "w": 8,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     },
+     "unit": "short"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum(increase(claude_code_token_usage_tokens_total{model=~\"$local_models\",type!=\"cacheRead\"}[$__range])) or vector(0)",
+     "legendFormat": "Locale",
+     "instant": true,
+     "range": false
+    },
+    {
+     "refId": "B",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum(increase(claude_code_token_usage_tokens_total{model=~\"claude-.*\",type!=\"cacheRead\"}[$__range])) or vector(0)",
+     "legendFormat": "Cloud",
+     "instant": true,
+     "range": false
+    },
+    {
+     "refId": "C",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum(increase(claude_code_token_usage_tokens_total{model=~\"$openweight_models\",type!=\"cacheRead\"}[$__range])) or vector(0)",
+     "legendFormat": "Open-weight cloud",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "pieType": "donut",
+    "legend": {
+     "displayMode": "table",
+     "placement": "right",
+     "values": [
+      "value",
+      "percent"
+     ]
+    },
+    "tooltip": {
+     "mode": "single"
+    }
+   }
+  },
+  {
+   "id": 207,
+   "type": "bargauge",
+   "title": "Token per modello locale e tipo",
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 8,
+    "y": 57,
+    "w": 8,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     },
+     "unit": "short"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum by (model, type) (increase(claude_code_token_usage_tokens_total{model=~\"$local_models\"}[$__range]))",
+     "legendFormat": "{{model}} / {{type}}",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "orientation": "horizontal",
+    "displayMode": "gradient",
+    "showUnfilled": true,
+    "namePlacement": "top"
+   }
+  },
+  {
+   "id": 208,
+   "type": "timeseries",
+   "title": "Token/s per gruppo (cache read esclusa)",
+   "description": "Rate dei token elaborati.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 16,
+    "y": 57,
+    "w": 8,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     },
+     "unit": "short"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum(rate(claude_code_token_usage_tokens_total{model=~\"$local_models\",type!=\"cacheRead\"}[$__rate_interval]))",
+     "legendFormat": "Locale"
+    },
+    {
+     "refId": "B",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum(rate(claude_code_token_usage_tokens_total{model=~\"claude-.*\",type!=\"cacheRead\"}[$__rate_interval]))",
+     "legendFormat": "Cloud"
+    },
+    {
+     "refId": "C",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum(rate(claude_code_token_usage_tokens_total{model=~\"$openweight_models\",type!=\"cacheRead\"}[$__rate_interval]))",
+     "legendFormat": "Open-weight cloud"
+    }
+   ],
+   "options": {
+    "legend": {
+     "displayMode": "table",
+     "placement": "bottom",
+     "calcs": [
+      "lastNotNull",
+      "max"
+     ]
+    },
+    "tooltip": {
+     "mode": "multi",
+     "sort": "desc"
+    }
+   }
+  },
+  {
+   "id": 209,
+   "type": "timeseries",
+   "title": "Risparmio stimato ($/ora)",
+   "description": "STIMA, vedi pannello Risparmio stimato.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 65,
+    "w": 12,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     },
+     "unit": "currencyUSD"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "((sum(rate(claude_code_token_usage_tokens_total{model=~\"$local_models\",type=\"input\"}[$__rate_interval])) or vector(0)) * $price_in + (sum(rate(claude_code_token_usage_tokens_total{model=~\"$local_models\",type=\"output\"}[$__rate_interval])) or vector(0)) * $price_out + (sum(rate(claude_code_token_usage_tokens_total{model=~\"$local_models\",type=\"cacheRead\"}[$__rate_interval])) or vector(0)) * $price_cache_read + (sum(rate(claude_code_token_usage_tokens_total{model=~\"$local_models\",type=\"cacheCreation\"}[$__rate_interval])) or vector(0)) * $price_cache_write) * 3600 / 1e6",
+     "legendFormat": "risparmio"
+    }
+   ],
+   "options": {
+    "legend": {
+     "displayMode": "table",
+     "placement": "bottom",
+     "calcs": [
+      "lastNotNull",
+      "max"
+     ]
+    },
+    "tooltip": {
+     "mode": "multi",
+     "sort": "desc"
+    }
+   }
+  },
+  {
+   "id": 210,
+   "type": "table",
+   "title": "Modelli locali: token per tipo nel periodo",
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 12,
+    "y": 65,
+    "w": 12,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     },
+     "unit": "short"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum by (model, type) (increase(claude_code_token_usage_tokens_total{model=~\"$local_models\"}[$__range]))",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "showHeader": true
+   },
+   "transformations": [
+    {
+     "id": "labelsToFields",
+     "options": {
+      "mode": "columns"
+     }
+    },
+    {
+     "id": "groupingToMatrix",
+     "options": {
+      "columnField": "type",
+      "rowField": "model",
+      "valueField": "Value"
+     }
+    }
+   ]
+  },
+  {
+   "id": 211,
+   "type": "row",
+   "title": "Ollama: stato del server",
+   "collapsed": false,
+   "gridPos": {
+    "x": 0,
+    "y": 73,
+    "w": 24,
+    "h": 1
+   },
+   "panels": []
+  },
+  {
+   "id": 212,
+   "type": "stat",
+   "title": "Ollama",
+   "description": "1 se il server risponde sulla porta 11434 dell'host.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 74,
+    "w": 3,
+    "h": 5
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     },
+     "mappings": [
+      {
+       "type": "value",
+       "options": {
+        "0": {
+         "text": "GIU'",
+         "color": "red"
+        },
+        "1": {
+         "text": "ATTIVO",
+         "color": "green"
+        }
+       }
+      }
+     ]
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "ollama_up",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "colorMode": "background",
+    "graphMode": "none",
+    "textMode": "value"
+   }
+  },
+  {
+   "id": 213,
+   "type": "stat",
+   "title": "Modelli caricati",
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 3,
+    "y": 74,
+    "w": 3,
+    "h": 5
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     },
+     "unit": "short"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "count(ollama_model_loaded) or vector(0)",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "colorMode": "value",
+    "graphMode": "none"
+   }
+  },
+  {
+   "id": 214,
+   "type": "stat",
+   "title": "Modelli scaricati",
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 6,
+    "y": 74,
+    "w": 3,
+    "h": 5
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     },
+     "unit": "short"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "ollama_models_installed",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "colorMode": "value",
+    "graphMode": "none"
+   }
+  },
+  {
+   "id": 215,
+   "type": "stat",
+   "title": "Memoria occupata",
+   "description": "Somma della parte in VRAM / memoria unificata dei modelli caricati.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 9,
+    "y": 74,
+    "w": 5,
+    "h": 5
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     },
+     "unit": "bytes"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum(ollama_model_size_vram_bytes) or vector(0)",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "colorMode": "value",
+    "graphMode": "none"
+   }
+  },
+  {
+   "id": 216,
+   "type": "timeseries",
+   "title": "Memoria per modello",
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 14,
+    "y": 74,
+    "w": 10,
+    "h": 5
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     },
+     "unit": "bytes"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "ollama_model_size_vram_bytes",
+     "legendFormat": "{{model}}"
+    }
+   ],
+   "options": {
+    "legend": {
+     "displayMode": "table",
+     "placement": "bottom",
+     "calcs": [
+      "lastNotNull",
+      "max"
+     ]
+    },
+    "tooltip": {
+     "mode": "multi",
+     "sort": "desc"
+    }
+   }
+  },
+  {
+   "id": 217,
+   "type": "table",
+   "title": "Modelli caricati ora",
+   "description": "Ollama non espone latenza ne' token/s per richiesta. Il consumo di token locali sta nella sezione sopra, dalle metriche di Claude Code.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 79,
+    "w": 24,
+    "h": 6
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     }
+    },
+    "overrides": [
+     {
+      "matcher": {
+       "id": "byName",
+       "options": "Dimensione"
+      },
+      "properties": [
+       {
+        "id": "unit",
+        "value": "bytes"
+       }
+      ]
+     },
+     {
+      "matcher": {
+       "id": "byName",
+       "options": "In VRAM"
+      },
+      "properties": [
+       {
+        "id": "unit",
+        "value": "bytes"
+       }
+      ]
+     },
+     {
+      "matcher": {
+       "id": "byName",
+       "options": "Scarica alle"
+      },
+      "properties": [
+       {
+        "id": "unit",
+        "value": "dateTimeAsLocal"
+       }
+      ]
+     }
+    ]
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "ollama_model_size_bytes",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    },
+    {
+     "refId": "B",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "ollama_model_size_vram_bytes",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    },
+    {
+     "refId": "C",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "ollama_model_context_length",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    },
+    {
+     "refId": "D",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "ollama_model_expires_timestamp_seconds * 1000",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "showHeader": true
+   },
+   "transformations": [
+    {
+     "id": "joinByField",
+     "options": {
+      "byField": "model",
+      "mode": "outer"
+     }
+    },
+    {
+     "id": "organize",
+     "options": {
+      "excludeByName": {
+       "Time": true,
+       "Time 1": true,
+       "Time 2": true,
+       "Time 3": true,
+       "Time 4": true,
+       "Value": true,
+       "family 2": true,
+       "family 3": true,
+       "family 4": true,
+       "parameter_size 2": true,
+       "parameter_size 3": true,
+       "parameter_size 4": true
+      },
+      "renameByName": {
+       "Value #A": "Dimensione",
+       "Value #B": "In VRAM",
+       "Value #C": "Contesto",
+       "Value #D": "Scarica alle",
+       "parameter_size 1": "Parametri",
+       "family 1": "Famiglia"
+      }
+     }
+    }
+   ]
+  },
+  {
    "collapsed": false,
    "gridPos": {
     "h": 1,
     "w": 24,
     "x": 0,
-    "y": 51
+    "y": 85
    },
    "id": 34,
    "title": "Overview",
@@ -1097,7 +2122,7 @@
     "h": 4,
     "w": 3,
     "x": 0,
-    "y": 52
+    "y": 86
    },
    "id": 2,
    "options": {
@@ -1163,7 +2188,7 @@
     "h": 4,
     "w": 3,
     "x": 3,
-    "y": 52
+    "y": 86
    },
    "id": 3,
    "options": {
@@ -1237,7 +2262,7 @@
     "h": 4,
     "w": 3,
     "x": 6,
-    "y": 52
+    "y": 86
    },
    "id": 4,
    "options": {
@@ -1303,7 +2328,7 @@
     "h": 4,
     "w": 3,
     "x": 9,
-    "y": 52
+    "y": 86
    },
    "id": 5,
    "options": {
@@ -1369,7 +2394,7 @@
     "h": 4,
     "w": 3,
     "x": 12,
-    "y": 52
+    "y": 86
    },
    "id": 6,
    "options": {
@@ -1435,7 +2460,7 @@
     "h": 4,
     "w": 3,
     "x": 15,
-    "y": 52
+    "y": 86
    },
    "id": 7,
    "options": {
@@ -1501,7 +2526,7 @@
     "h": 4,
     "w": 3,
     "x": 18,
-    "y": 52
+    "y": 86
    },
    "id": 8,
    "options": {
@@ -1567,7 +2592,7 @@
     "h": 4,
     "w": 3,
     "x": 21,
-    "y": 52
+    "y": 86
    },
    "id": 9,
    "options": {
@@ -1664,7 +2689,7 @@
     "h": 6,
     "w": 6,
     "x": 0,
-    "y": 56
+    "y": 90
    },
    "id": 10,
    "options": {
@@ -1791,7 +2816,7 @@
     "h": 6,
     "w": 6,
     "x": 6,
-    "y": 56
+    "y": 90
    },
    "id": 11,
    "options": {
@@ -1888,7 +2913,7 @@
     "h": 6,
     "w": 6,
     "x": 12,
-    "y": 56
+    "y": 90
    },
    "id": 12,
    "options": {
@@ -1966,7 +2991,7 @@
     "h": 6,
     "w": 6,
     "x": 18,
-    "y": 56
+    "y": 90
    },
    "id": 33,
    "options": {
@@ -2019,7 +3044,7 @@
     "h": 1,
     "w": 24,
     "x": 0,
-    "y": 62
+    "y": 96
    },
    "id": 35,
    "title": "Leaderboards",
@@ -2052,7 +3077,7 @@
     "h": 5,
     "w": 6,
     "x": 0,
-    "y": 63
+    "y": 97
    },
    "id": 24,
    "options": {
@@ -2123,7 +3148,7 @@
     "h": 5,
     "w": 6,
     "x": 6,
-    "y": 63
+    "y": 97
    },
    "id": 25,
    "options": {
@@ -2172,7 +3197,7 @@
     "type": "prometheus",
     "uid": "prom"
    },
-   "description": "Top 10 most expensive sessions in the selected window. Useful for spotting runaway sessions. Once OTEL_RESOURCE_ATTRIBUTES=git.repo=\u2026 is set on the shell that launches Claude, this panel can be repointed to group by `git_repo`.",
+   "description": "Top 10 most expensive sessions in the selected window. Useful for spotting runaway sessions. Once OTEL_RESOURCE_ATTRIBUTES=git.repo=… is set on the shell that launches Claude, this panel can be repointed to group by `git_repo`.",
    "fieldConfig": {
     "defaults": {
      "color": {
@@ -2194,7 +3219,7 @@
     "h": 5,
     "w": 12,
     "x": 12,
-    "y": 63
+    "y": 97
    },
    "id": 26,
    "options": {
@@ -2263,7 +3288,7 @@
     "h": 8,
     "w": 8,
     "x": 0,
-    "y": 68
+    "y": 102
    },
    "id": 27,
    "options": {
@@ -2333,7 +3358,7 @@
     "h": 8,
     "w": 8,
     "x": 8,
-    "y": 68
+    "y": 102
    },
    "id": 28,
    "options": {
@@ -2403,7 +3428,7 @@
     "h": 8,
     "w": 8,
     "x": 16,
-    "y": 68
+    "y": 102
    },
    "id": 29,
    "options": {
@@ -2454,7 +3479,7 @@
     "h": 1,
     "w": 24,
     "x": 0,
-    "y": 76
+    "y": 110
    },
    "id": 36,
    "title": "Cost & Tokens",
@@ -2521,7 +3546,7 @@
     "h": 8,
     "w": 12,
     "x": 0,
-    "y": 77
+    "y": 111
    },
    "id": 14,
    "options": {
@@ -2621,7 +3646,7 @@
     "h": 8,
     "w": 12,
     "x": 12,
-    "y": 77
+    "y": 111
    },
    "id": 15,
    "options": {
@@ -2783,7 +3808,7 @@
     "h": 8,
     "w": 12,
     "x": 0,
-    "y": 85
+    "y": 119
    },
    "id": 16,
    "options": {
@@ -2879,7 +3904,7 @@
     "h": 8,
     "w": 12,
     "x": 12,
-    "y": 85
+    "y": 119
    },
    "id": 17,
    "options": {
@@ -2939,7 +3964,7 @@
     "h": 8,
     "w": 12,
     "x": 0,
-    "y": 93
+    "y": 127
    },
    "id": 31,
    "options": {
@@ -3009,7 +4034,7 @@
     "h": 8,
     "w": 12,
     "x": 12,
-    "y": 93
+    "y": 127
    },
    "id": 32,
    "options": {
@@ -3060,7 +4085,7 @@
     "h": 1,
     "w": 24,
     "x": 0,
-    "y": 101
+    "y": 135
    },
    "id": 37,
    "title": "Activity & Productivity",
@@ -3159,7 +4184,7 @@
     "h": 8,
     "w": 24,
     "x": 0,
-    "y": 102
+    "y": 136
    },
    "id": 20,
    "options": {
@@ -3287,7 +4312,7 @@
     "h": 8,
     "w": 12,
     "x": 0,
-    "y": 110
+    "y": 144
    },
    "id": 21,
    "options": {
@@ -3415,7 +4440,7 @@
     "h": 8,
     "w": 12,
     "x": 12,
-    "y": 110
+    "y": 144
    },
    "id": 22,
    "options": {
@@ -3550,6 +4575,120 @@
     "skipUrlSync": false,
     "sort": 1,
     "type": "query"
+   },
+   {
+    "type": "textbox",
+    "name": "local_models",
+    "label": "Regex modelli locali (Ollama)",
+    "query": ".*oss.*|ornith.*|qwen.*",
+    "current": {
+     "text": ".*oss.*|ornith.*|qwen.*",
+     "value": ".*oss.*|ornith.*|qwen.*"
+    },
+    "options": [
+     {
+      "selected": true,
+      "text": ".*oss.*|ornith.*|qwen.*",
+      "value": ".*oss.*|ornith.*|qwen.*"
+     }
+    ],
+    "hide": 0,
+    "skipUrlSync": false
+   },
+   {
+    "type": "textbox",
+    "name": "openweight_models",
+    "label": "Regex open-weight cloud",
+    "query": "kimi.*|glm.*|deepseek.*|moonshot.*",
+    "current": {
+     "text": "kimi.*|glm.*|deepseek.*|moonshot.*",
+     "value": "kimi.*|glm.*|deepseek.*|moonshot.*"
+    },
+    "options": [
+     {
+      "selected": true,
+      "text": "kimi.*|glm.*|deepseek.*|moonshot.*",
+      "value": "kimi.*|glm.*|deepseek.*|moonshot.*"
+     }
+    ],
+    "hide": 0,
+    "skipUrlSync": false
+   },
+   {
+    "type": "textbox",
+    "name": "price_in",
+    "label": "Rif. $/Mtok input",
+    "query": "3",
+    "current": {
+     "text": "3",
+     "value": "3"
+    },
+    "options": [
+     {
+      "selected": true,
+      "text": "3",
+      "value": "3"
+     }
+    ],
+    "hide": 0,
+    "skipUrlSync": false
+   },
+   {
+    "type": "textbox",
+    "name": "price_out",
+    "label": "Rif. $/Mtok output",
+    "query": "15",
+    "current": {
+     "text": "15",
+     "value": "15"
+    },
+    "options": [
+     {
+      "selected": true,
+      "text": "15",
+      "value": "15"
+     }
+    ],
+    "hide": 0,
+    "skipUrlSync": false
+   },
+   {
+    "type": "textbox",
+    "name": "price_cache_read",
+    "label": "Rif. $/Mtok cache read",
+    "query": "0.3",
+    "current": {
+     "text": "0.3",
+     "value": "0.3"
+    },
+    "options": [
+     {
+      "selected": true,
+      "text": "0.3",
+      "value": "0.3"
+     }
+    ],
+    "hide": 0,
+    "skipUrlSync": false
+   },
+   {
+    "type": "textbox",
+    "name": "price_cache_write",
+    "label": "Rif. $/Mtok cache write",
+    "query": "3.75",
+    "current": {
+     "text": "3.75",
+     "value": "3.75"
+    },
+    "options": [
+     {
+      "selected": true,
+      "text": "3.75",
+      "value": "3.75"
+     }
+    ],
+    "hide": 0,
+    "skipUrlSync": false
    }
   ]
  },

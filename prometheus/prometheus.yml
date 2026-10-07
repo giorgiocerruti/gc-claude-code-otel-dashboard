@@ -5,3 +5,6 @@ scrape_configs:
   - job_name: claude-code
     static_configs:
       - targets: ["otel-collector:8889"]
+  - job_name: ollama
+    static_configs:
+      - targets: ["ollama-exporter:9778"]

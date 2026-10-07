@@ -128,6 +128,41 @@ Vale solo per le sessioni avviate da quella shell dopo l'installazione. Le altre
 - **Chi consuma**: costo per progetto, agente e modello nel periodo selezionato, costo e token per progetto nel tempo, tabella progetto x agente x modello.
 - **Stima % quota 7d** per progetto, agente e modello: la quota settimanale usata ripartita in proporzione al costo degli ultimi 7 giorni. E' una **stima**: il costo calcolato dal client approssima il peso reale sul limite, e la finestra di 7 giorni scorrevole non coincide esattamente con quella del reset.
 
+## Modelli locali (Ollama) e offload
+
+Se Claude Code usa un modello non Anthropic tramite `ANTHROPIC_BASE_URL`, le sue metriche OTel arrivano con la label `model` di quel modello. La dashboard distingue tre gruppi con due variabili in alto (regex sulla label `model`, modificabili):
+
+| Gruppo | Variabile | Default |
+|---|---|---|
+| Locale (Ollama) | `local_models` | `.*oss.*\|ornith.*\|qwen.*` |
+| Open-weight cloud (a pagamento) | `openweight_models` | `kimi.*\|glm.*\|deepseek.*\|moonshot.*` |
+| Claude | | `claude-.*` |
+
+La sezione **Modelli locali (Ollama) vs cloud** mostra:
+
+- token locali, percentuale sul totale (cache read esclusa), token/s per gruppo;
+- **risparmio stimato**: i token locali valorizzati ai prezzi di riferimento Anthropic. I prezzi sono le variabili `Rif. $/Mtok ...` (default 3 / 15 / 0.3 / 3.75): impostali sul modello Claude che il locale sostituisce. E' una stima, non conta energia e hardware;
+- il costo che Claude Code riporta per locale e open-weight cloud. Per modelli sconosciuti al client e' 0 o un prezzo di ripiego: per i modelli a pagamento confrontalo con la fattura del provider.
+
+La sezione **Ollama: stato del server** viene da `ollama-exporter/`, un piccolo exporter Python che legge `/api/ps` e `/api/tags` di Ollama sull'host (`host.docker.internal:11434`): modelli caricati, memoria, contesto, scadenza. Ollama non ha un endpoint `/metrics` ne' espone latenza o token/s per richiesta: servirebbe un proxy davanti a Ollama.
+
+### Sessioni in container (claude-infrastructure-template)
+
+La skill `oss-offload` lancia ogni agente instradato in un container `docker run --rm` (immagine `claude-oss`) e non passa variabili `OTEL_*`. Senza telemetria quei token non arrivano al collector. Aggiungi in `.claude/oss-offload.json` del progetto (`env` viene passato al worker):
+
+```json
+"env": {
+  "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+  "OTEL_METRICS_EXPORTER": "otlp",
+  "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
+  "OTEL_EXPORTER_OTLP_ENDPOINT": "http://host.docker.internal:4317",
+  "OTEL_METRIC_EXPORT_INTERVAL": "5000",
+  "OTEL_RESOURCE_ATTRIBUTES": "project.name=<progetto>"
+}
+```
+
+Il container vive poco: l'intervallo breve riduce il rischio di perdere l'ultimo batch. `host.docker.internal` e' gia' risolto dallo script con `--add-host`.
+
 ## Porte
 
 Tutte le porte sono legate a `127.0.0.1`.
