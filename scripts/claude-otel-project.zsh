@@ -15,5 +15,7 @@ _claude_otel_project() {
 }
 
 claude() {
+  # OTEL_LOG_TOOL_DETAILS=1: nomi reali di agenti custom, skill e MCP (altrimenti "custom"/"third-party")
+  OTEL_LOG_TOOL_DETAILS=1 \
   OTEL_RESOURCE_ATTRIBUTES="project.name=$(_claude_otel_project)${OTEL_RESOURCE_ATTRIBUTES:+,$OTEL_RESOURCE_ATTRIBUTES}" command claude "$@"
 }

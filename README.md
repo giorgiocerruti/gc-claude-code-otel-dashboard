@@ -122,6 +122,8 @@ source "$HOME/.claude/otel/claude-otel-project.zsh"
 
 Vale solo per le sessioni avviate da quella shell dopo l'installazione. Le altre compaiono come `(non assegnato)`. L'agente principale senza `agent_name` compare come `(sessione principale)`.
 
+La stessa funzione imposta anche `OTEL_LOG_TOOL_DETAILS=1`. Senza, Claude Code sostituisce i nomi degli agenti custom con `custom` (e quelli di skill, plugin e server MCP di terze parti con `custom` / `third-party`), quindi non si capisce quale agente consuma di piu'. Gli agenti built-in (`Explore`, `general-purpose`) compaiono sempre in chiaro. Serve Claude Code >= 2.1.273; lo storico gia' raccolto resta `custom`, i nomi reali valgono dalle nuove sessioni. Se non usi il wrapper, imposta `OTEL_LOG_TOOL_DETAILS=1` in `~/.claude/settings.json` sotto `env`. Attenzione: la variabile abilita anche il log dei parametri dei tool negli eventi, non solo i nomi nelle metriche.
+
 ### Cosa mostrano i nuovi pannelli
 
 - **Quota**: percentuale usata e rimasta per 5h e 7d, tempo al reset, andamento, velocita' di consumo in %/ora e **previsione della quota settimanale al reset** (sopra 100% finisci il budget prima del reset).
@@ -140,13 +142,17 @@ Se Claude Code usa un modello non Anthropic tramite `ANTHROPIC_BASE_URL`, le sue
 
 La sezione **Modelli locali (Ollama) vs cloud** mostra:
 
-- token locali, percentuale sul totale (cache read esclusa), token/s per gruppo;
+- token locali, percentuale sul totale (cache read esclusa), token/s per gruppo. I numeri **locali** vengono dal proxy (`ollama_prompt_tokens_total`, `ollama_completion_tokens_total`, `ollama_requests_total`, filtrati con `local_models`), non dalle metriche OTel di Claude Code: il traffico deve passare dal proxy (`ANTHROPIC_BASE_URL=http://localhost:11435`). Il proxy non distingue i tipi di cache: i tipi sono solo `input` e `output`. I numeri Claude e open-weight restano da OTel;
 - **risparmio stimato**: i token locali valorizzati ai prezzi di riferimento Anthropic. I prezzi sono le variabili `Rif. $/Mtok ...` (default 3 / 15 / 0.3 / 3.75): impostali sul modello Claude che il locale sostituisce. E' una stima, non conta energia e hardware;
 - il costo che Claude Code riporta per locale e open-weight cloud. Per modelli sconosciuti al client e' 0 o un prezzo di ripiego: per i modelli a pagamento confrontalo con la fattura del provider.
+
+![Modelli locali vs cloud](docs/images/05-modelli-locali.jpg)
 
 La sezione **Ollama: stato del server** viene da `ollama-exporter/`, un piccolo exporter Python che legge `/api/ps` e `/api/tags` di Ollama sull'host (`host.docker.internal:11434`): modelli caricati, memoria, contesto, scadenza. Ollama non ha un endpoint `/metrics` ne' espone token o richieste.
 
 La sezione **Ollama: attivita' (proxy)** viene da `ollama-proxy`, un proxy Go di terzi ([elliotfehr/ollama-metrics-proxy](https://github.com/elliotfehr/ollama-metrics-proxy), MIT, compilato dal commit pinnato in `docker-compose.yml`). Ascolta su `127.0.0.1:11435` e inoltra a Ollama sull'host: conta richieste, richieste in corso e token (endpoint `/api/*`, `/v1/chat/completions`, `/v1/messages`). Vede **solo il traffico che lo attraversa**: punta i client sul proxy, per Claude Code `ANTHROPIC_BASE_URL=http://localhost:11435`. Token/s per richiesta e tempi di valutazione arrivano solo dagli endpoint nativi `/api/*`.
+
+![Ollama: attivita' (proxy)](docs/images/06-ollama-proxy.jpg)
 
 ### Sessioni in container (claude-infrastructure-template)
 

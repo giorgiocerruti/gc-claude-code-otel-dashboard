@@ -1073,7 +1073,7 @@
    "id": 201,
    "type": "stat",
    "title": "Token modelli locali",
-   "description": "Tutti i tipi di token, cache read inclusa. Locale = modelli che corrispondono alla variabile local_models.",
+   "description": "Token prompt + generati dei modelli locali, misurati dal proxy Ollama (job ollama-proxy). Locale = modelli che corrispondono alla variabile local_models.",
    "datasource": {
     "type": "prometheus",
     "uid": "prom"
@@ -1100,7 +1100,7 @@
       "type": "prometheus",
       "uid": "prom"
      },
-     "expr": "sum(increase(claude_code_token_usage_tokens_total{model=~\"$local_models\"}[$__range])) or vector(0)",
+     "expr": "((sum(increase(ollama_prompt_tokens_total{model=~\"$local_models\"}[$__range])) or vector(0)) + (sum(increase(ollama_completion_tokens_total{model=~\"$local_models\"}[$__range])) or vector(0)))",
      "legendFormat": "",
      "instant": true,
      "range": false
@@ -1121,7 +1121,7 @@
    "id": 202,
    "type": "stat",
    "title": "% token locali",
-   "description": "Quota di token input+output+cache creation gestita da modelli locali.",
+   "description": "Token locali (proxy) / (token locali + token Claude senza cache read). Stima: i token prompt di Ollama includono il contesto rimandato a ogni richiesta.",
    "datasource": {
     "type": "prometheus",
     "uid": "prom"
@@ -1150,7 +1150,7 @@
       "type": "prometheus",
       "uid": "prom"
      },
-     "expr": "sum(increase(claude_code_token_usage_tokens_total{model=~\"$local_models\",type!=\"cacheRead\"}[$__range])) / sum(increase(claude_code_token_usage_tokens_total{type!=\"cacheRead\"}[$__range]))",
+     "expr": "((sum(increase(ollama_prompt_tokens_total{model=~\"$local_models\"}[$__range])) or vector(0)) + (sum(increase(ollama_completion_tokens_total{model=~\"$local_models\"}[$__range])) or vector(0))) / (((sum(increase(ollama_prompt_tokens_total{model=~\"$local_models\"}[$__range])) or vector(0)) + (sum(increase(ollama_completion_tokens_total{model=~\"$local_models\"}[$__range])) or vector(0))) + (sum(increase(claude_code_token_usage_tokens_total{type!=\"cacheRead\"}[$__range])) or vector(0)))",
      "legendFormat": "",
      "instant": true,
      "range": false
@@ -1219,7 +1219,7 @@
    "id": 204,
    "type": "stat",
    "title": "Risparmio stimato",
-   "description": "STIMA: token locali valorizzati ai prezzi di riferimento Anthropic (variabili price_* in alto, $ per milione di token). Non e' un costo reale: l'hardware locale ha un costo suo (energia, ammortamento).",
+   "description": "Token prompt e generati dal proxy valorizzati ai prezzi di riferimento (price_in, price_out). Cache non distinta dal proxy.",
    "datasource": {
     "type": "prometheus",
     "uid": "prom"
@@ -1247,7 +1247,7 @@
       "type": "prometheus",
       "uid": "prom"
      },
-     "expr": "((sum(increase(claude_code_token_usage_tokens_total{model=~\"$local_models\",type=\"input\"}[$__range])) or vector(0)) * $price_in + (sum(increase(claude_code_token_usage_tokens_total{model=~\"$local_models\",type=\"output\"}[$__range])) or vector(0)) * $price_out + (sum(increase(claude_code_token_usage_tokens_total{model=~\"$local_models\",type=\"cacheRead\"}[$__range])) or vector(0)) * $price_cache_read + (sum(increase(claude_code_token_usage_tokens_total{model=~\"$local_models\",type=\"cacheCreation\"}[$__range])) or vector(0)) * $price_cache_write) / 1e6",
+     "expr": "((sum(increase(ollama_prompt_tokens_total{model=~\"$local_models\"}[$__range])) or vector(0)) * $price_in + (sum(increase(ollama_completion_tokens_total{model=~\"$local_models\"}[$__range])) or vector(0)) * $price_out) / 1e6",
      "legendFormat": "",
      "instant": true,
      "range": false
@@ -1268,7 +1268,7 @@
    "id": 205,
    "type": "stat",
    "title": "Richieste ai modelli locali",
-   "description": "Sessioni che hanno usato almeno un modello locale nel periodo.",
+   "description": "Richieste passate dal proxy Ollama verso modelli locali nel periodo.",
    "datasource": {
     "type": "prometheus",
     "uid": "prom"
@@ -1295,7 +1295,7 @@
       "type": "prometheus",
       "uid": "prom"
      },
-     "expr": "count(sum by (session_id) (increase(claude_code_token_usage_tokens_total{model=~\"$local_models\"}[$__range])) > 0) or vector(0)",
+     "expr": "sum(increase(ollama_requests_total{model=~\"$local_models\"}[$__range])) or vector(0)",
      "legendFormat": "",
      "instant": true,
      "range": false
@@ -1391,7 +1391,7 @@
       "type": "prometheus",
       "uid": "prom"
      },
-     "expr": "sum(increase(claude_code_token_usage_tokens_total{model=~\"$local_models\",type!=\"cacheRead\"}[$__range])) or vector(0)",
+     "expr": "((sum(increase(ollama_prompt_tokens_total{model=~\"$local_models\"}[$__range])) or vector(0)) + (sum(increase(ollama_completion_tokens_total{model=~\"$local_models\"}[$__range])) or vector(0)))",
      "legendFormat": "Locale",
      "instant": true,
      "range": false
@@ -1471,7 +1471,7 @@
       "type": "prometheus",
       "uid": "prom"
      },
-     "expr": "sum by (model, type) (increase(claude_code_token_usage_tokens_total{model=~\"$local_models\"}[$__range]))",
+     "expr": "label_replace(sum by (model) (increase(ollama_prompt_tokens_total{model=~\"$local_models\"}[$__range])), \"type\", \"input\", \"\", \"\") or label_replace(sum by (model) (increase(ollama_completion_tokens_total{model=~\"$local_models\"}[$__range])), \"type\", \"output\", \"\", \"\")",
      "legendFormat": "{{model}} / {{type}}",
      "instant": true,
      "range": false
@@ -1521,7 +1521,7 @@
       "type": "prometheus",
       "uid": "prom"
      },
-     "expr": "sum(rate(claude_code_token_usage_tokens_total{model=~\"$local_models\",type!=\"cacheRead\"}[$__rate_interval]))",
+     "expr": "(sum(rate(ollama_prompt_tokens_total{model=~\"$local_models\"}[$__rate_interval])) or vector(0)) + (sum(rate(ollama_completion_tokens_total{model=~\"$local_models\"}[$__rate_interval])) or vector(0))",
      "legendFormat": "Locale"
     },
     {
@@ -1589,7 +1589,7 @@
       "type": "prometheus",
       "uid": "prom"
      },
-     "expr": "((sum(rate(claude_code_token_usage_tokens_total{model=~\"$local_models\",type=\"input\"}[$__rate_interval])) or vector(0)) * $price_in + (sum(rate(claude_code_token_usage_tokens_total{model=~\"$local_models\",type=\"output\"}[$__rate_interval])) or vector(0)) * $price_out + (sum(rate(claude_code_token_usage_tokens_total{model=~\"$local_models\",type=\"cacheRead\"}[$__rate_interval])) or vector(0)) * $price_cache_read + (sum(rate(claude_code_token_usage_tokens_total{model=~\"$local_models\",type=\"cacheCreation\"}[$__rate_interval])) or vector(0)) * $price_cache_write) * 3600 / 1e6",
+     "expr": "((sum(rate(ollama_prompt_tokens_total{model=~\"$local_models\"}[$__rate_interval])) or vector(0)) * $price_in + (sum(rate(ollama_completion_tokens_total{model=~\"$local_models\"}[$__rate_interval])) or vector(0)) * $price_out) * 3600 / 1e6",
      "legendFormat": "risparmio"
     }
    ],
@@ -1639,7 +1639,7 @@
       "type": "prometheus",
       "uid": "prom"
      },
-     "expr": "sum by (model, type) (increase(claude_code_token_usage_tokens_total{model=~\"$local_models\"}[$__range]))",
+     "expr": "label_replace(sum by (model) (increase(ollama_prompt_tokens_total{model=~\"$local_models\"}[$__range])), \"type\", \"input\", \"\", \"\") or label_replace(sum by (model) (increase(ollama_completion_tokens_total{model=~\"$local_models\"}[$__range])), \"type\", \"output\", \"\", \"\")",
      "legendFormat": "",
      "instant": true,
      "range": false
