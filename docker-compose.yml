@@ -18,13 +18,28 @@ services:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
 
+  # Proxy davanti a Ollama: conta richieste, token e durata (Ollama non ha /metrics).
+  # Sorgente pinnata a un commit; client e Claude Code puntano a 127.0.0.1:11435.
+  ollama-proxy:
+    build: https://github.com/elliotfehr/ollama-metrics-proxy.git#74674dfc75f42d4f5a5960d7bbc598c63c97442c
+    command:
+      - ./ollama-metrics-proxy
+      - --listen=:11435
+      - --metrics-listen=:9836
+      - --ollama-url=http://host.docker.internal:11434
+    ports:
+      - "127.0.0.1:11435:11435"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
   prometheus:
     build: ./prometheus
     volumes:
       - prom-data:/prometheus
     ports:
       - "127.0.0.1:9090:9090"
-    depends_on: [otel-collector, ollama-exporter]
+    depends_on: [otel-collector, ollama-exporter, ollama-proxy]
     restart: unless-stopped
 
   grafana:

@@ -2082,12 +2082,427 @@
    ]
   },
   {
+   "id": 219,
+   "type": "row",
+   "title": "Ollama: attivita' (proxy)",
+   "collapsed": false,
+   "gridPos": {
+    "x": 0,
+    "y": 85,
+    "w": 24,
+    "h": 1
+   },
+   "panels": []
+  },
+  {
+   "id": 220,
+   "type": "stat",
+   "title": "Richieste in corso",
+   "description": "Richieste in elaborazione ora: > 0 = il modello sta lavorando. Conta solo il traffico che passa dal proxy (porta 11435).",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 86,
+    "w": 4,
+    "h": 5
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     }
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum(ollama_active_requests) or vector(0)",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "colorMode": "value",
+    "graphMode": "area",
+    "textMode": "value"
+   }
+  },
+  {
+   "id": 221,
+   "type": "stat",
+   "title": "Richieste/min",
+   "description": "Richieste completate al minuto (finestra 5m).",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 4,
+    "y": 86,
+    "w": 5,
+    "h": 5
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     },
+     "unit": "none"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum(rate(ollama_requests_total[5m])) * 60 or vector(0)",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "colorMode": "value",
+    "graphMode": "area",
+    "textMode": "value"
+   }
+  },
+  {
+   "id": 222,
+   "type": "stat",
+   "title": "Token generati/s",
+   "description": "Token di output al secondo (media 5m).",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 9,
+    "y": 86,
+    "w": 5,
+    "h": 5
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     },
+     "unit": "none"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum(rate(ollama_completion_tokens_total[5m])) or vector(0)",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "colorMode": "value",
+    "graphMode": "area",
+    "textMode": "value"
+   }
+  },
+  {
+   "id": 223,
+   "type": "stat",
+   "title": "Token prompt/s",
+   "description": "Token di input al secondo (media 5m).",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 14,
+    "y": 86,
+    "w": 5,
+    "h": 5
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     },
+     "unit": "none"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum(rate(ollama_prompt_tokens_total[5m])) or vector(0)",
+     "legendFormat": "",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "colorMode": "value",
+    "graphMode": "area",
+    "textMode": "value"
+   }
+  },
+  {
+   "id": 224,
+   "type": "stat",
+   "title": "Velocita' ultima richiesta (tok/s)",
+   "description": "Token/s dell'ultima richiesta per modello. Solo endpoint nativi /api/*: con /v1/messages resta vuoto.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 19,
+    "y": 86,
+    "w": 5,
+    "h": 5
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     },
+     "unit": "none"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "ollama_tokens_per_second",
+     "legendFormat": "{{model}}",
+     "instant": true,
+     "range": false
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ],
+     "values": false
+    },
+    "colorMode": "value",
+    "graphMode": "area",
+    "textMode": "value"
+   }
+  },
+  {
+   "id": 225,
+   "type": "timeseries",
+   "title": "Richieste in corso",
+   "description": "Richieste attive per modello.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 91,
+    "w": 8,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     }
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum by (model) (ollama_active_requests)",
+     "legendFormat": "{{model}}"
+    }
+   ],
+   "options": {
+    "legend": {
+     "displayMode": "table",
+     "placement": "bottom",
+     "calcs": [
+      "lastNotNull",
+      "max"
+     ]
+    },
+    "tooltip": {
+     "mode": "multi",
+     "sort": "desc"
+    }
+   }
+  },
+  {
+   "id": 226,
+   "type": "timeseries",
+   "title": "Token/s per modello",
+   "description": "Token al secondo per modello, generati e prompt.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 8,
+    "y": 91,
+    "w": 8,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     },
+     "unit": "none"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum by (model) (rate(ollama_completion_tokens_total[1m]))",
+     "legendFormat": "{{model}} generati"
+    },
+    {
+     "refId": "B",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum by (model) (rate(ollama_prompt_tokens_total[1m]))",
+     "legendFormat": "{{model}} prompt"
+    }
+   ],
+   "options": {
+    "legend": {
+     "displayMode": "table",
+     "placement": "bottom",
+     "calcs": [
+      "lastNotNull",
+      "max"
+     ]
+    },
+    "tooltip": {
+     "mode": "multi",
+     "sort": "desc"
+    }
+   }
+  },
+  {
+   "id": 227,
+   "type": "timeseries",
+   "title": "Richieste/min per modello",
+   "description": "Richieste completate al minuto per endpoint.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 16,
+    "y": 91,
+    "w": 8,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "color": {
+      "mode": "palette-classic"
+     },
+     "unit": "none"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prom"
+     },
+     "expr": "sum by (model, endpoint) (rate(ollama_requests_total[5m])) * 60",
+     "legendFormat": "{{model}} {{endpoint}}"
+    }
+   ],
+   "options": {
+    "legend": {
+     "displayMode": "table",
+     "placement": "bottom",
+     "calcs": [
+      "lastNotNull",
+      "max"
+     ]
+    },
+    "tooltip": {
+     "mode": "multi",
+     "sort": "desc"
+    }
+   }
+  },
+  {
    "collapsed": false,
    "gridPos": {
     "h": 1,
     "w": 24,
     "x": 0,
-    "y": 85
+    "y": 99
    },
    "id": 34,
    "title": "Overview",
@@ -2122,7 +2537,7 @@
     "h": 4,
     "w": 3,
     "x": 0,
-    "y": 86
+    "y": 100
    },
    "id": 2,
    "options": {
@@ -2188,7 +2603,7 @@
     "h": 4,
     "w": 3,
     "x": 3,
-    "y": 86
+    "y": 100
    },
    "id": 3,
    "options": {
@@ -2262,7 +2677,7 @@
     "h": 4,
     "w": 3,
     "x": 6,
-    "y": 86
+    "y": 100
    },
    "id": 4,
    "options": {
@@ -2328,7 +2743,7 @@
     "h": 4,
     "w": 3,
     "x": 9,
-    "y": 86
+    "y": 100
    },
    "id": 5,
    "options": {
@@ -2394,7 +2809,7 @@
     "h": 4,
     "w": 3,
     "x": 12,
-    "y": 86
+    "y": 100
    },
    "id": 6,
    "options": {
@@ -2460,7 +2875,7 @@
     "h": 4,
     "w": 3,
     "x": 15,
-    "y": 86
+    "y": 100
    },
    "id": 7,
    "options": {
@@ -2526,7 +2941,7 @@
     "h": 4,
     "w": 3,
     "x": 18,
-    "y": 86
+    "y": 100
    },
    "id": 8,
    "options": {
@@ -2592,7 +3007,7 @@
     "h": 4,
     "w": 3,
     "x": 21,
-    "y": 86
+    "y": 100
    },
    "id": 9,
    "options": {
@@ -2689,7 +3104,7 @@
     "h": 6,
     "w": 6,
     "x": 0,
-    "y": 90
+    "y": 104
    },
    "id": 10,
    "options": {
@@ -2816,7 +3231,7 @@
     "h": 6,
     "w": 6,
     "x": 6,
-    "y": 90
+    "y": 104
    },
    "id": 11,
    "options": {
@@ -2913,7 +3328,7 @@
     "h": 6,
     "w": 6,
     "x": 12,
-    "y": 90
+    "y": 104
    },
    "id": 12,
    "options": {
@@ -2991,7 +3406,7 @@
     "h": 6,
     "w": 6,
     "x": 18,
-    "y": 90
+    "y": 104
    },
    "id": 33,
    "options": {
@@ -3044,7 +3459,7 @@
     "h": 1,
     "w": 24,
     "x": 0,
-    "y": 96
+    "y": 110
    },
    "id": 35,
    "title": "Leaderboards",
@@ -3077,7 +3492,7 @@
     "h": 5,
     "w": 6,
     "x": 0,
-    "y": 97
+    "y": 111
    },
    "id": 24,
    "options": {
@@ -3148,7 +3563,7 @@
     "h": 5,
     "w": 6,
     "x": 6,
-    "y": 97
+    "y": 111
    },
    "id": 25,
    "options": {
@@ -3219,7 +3634,7 @@
     "h": 5,
     "w": 12,
     "x": 12,
-    "y": 97
+    "y": 111
    },
    "id": 26,
    "options": {
@@ -3288,7 +3703,7 @@
     "h": 8,
     "w": 8,
     "x": 0,
-    "y": 102
+    "y": 116
    },
    "id": 27,
    "options": {
@@ -3358,7 +3773,7 @@
     "h": 8,
     "w": 8,
     "x": 8,
-    "y": 102
+    "y": 116
    },
    "id": 28,
    "options": {
@@ -3428,7 +3843,7 @@
     "h": 8,
     "w": 8,
     "x": 16,
-    "y": 102
+    "y": 116
    },
    "id": 29,
    "options": {
@@ -3479,7 +3894,7 @@
     "h": 1,
     "w": 24,
     "x": 0,
-    "y": 110
+    "y": 124
    },
    "id": 36,
    "title": "Cost & Tokens",
@@ -3546,7 +3961,7 @@
     "h": 8,
     "w": 12,
     "x": 0,
-    "y": 111
+    "y": 125
    },
    "id": 14,
    "options": {
@@ -3646,7 +4061,7 @@
     "h": 8,
     "w": 12,
     "x": 12,
-    "y": 111
+    "y": 125
    },
    "id": 15,
    "options": {
@@ -3808,7 +4223,7 @@
     "h": 8,
     "w": 12,
     "x": 0,
-    "y": 119
+    "y": 133
    },
    "id": 16,
    "options": {
@@ -3904,7 +4319,7 @@
     "h": 8,
     "w": 12,
     "x": 12,
-    "y": 119
+    "y": 133
    },
    "id": 17,
    "options": {
@@ -3964,7 +4379,7 @@
     "h": 8,
     "w": 12,
     "x": 0,
-    "y": 127
+    "y": 141
    },
    "id": 31,
    "options": {
@@ -4034,7 +4449,7 @@
     "h": 8,
     "w": 12,
     "x": 12,
-    "y": 127
+    "y": 141
    },
    "id": 32,
    "options": {
@@ -4085,7 +4500,7 @@
     "h": 1,
     "w": 24,
     "x": 0,
-    "y": 135
+    "y": 149
    },
    "id": 37,
    "title": "Activity & Productivity",
@@ -4184,7 +4599,7 @@
     "h": 8,
     "w": 24,
     "x": 0,
-    "y": 136
+    "y": 150
    },
    "id": 20,
    "options": {
@@ -4312,7 +4727,7 @@
     "h": 8,
     "w": 12,
     "x": 0,
-    "y": 144
+    "y": 158
    },
    "id": 21,
    "options": {
@@ -4440,7 +4855,7 @@
     "h": 8,
     "w": 12,
     "x": 12,
-    "y": 144
+    "y": 158
    },
    "id": 22,
    "options": {

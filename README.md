@@ -144,7 +144,9 @@ La sezione **Modelli locali (Ollama) vs cloud** mostra:
 - **risparmio stimato**: i token locali valorizzati ai prezzi di riferimento Anthropic. I prezzi sono le variabili `Rif. $/Mtok ...` (default 3 / 15 / 0.3 / 3.75): impostali sul modello Claude che il locale sostituisce. E' una stima, non conta energia e hardware;
 - il costo che Claude Code riporta per locale e open-weight cloud. Per modelli sconosciuti al client e' 0 o un prezzo di ripiego: per i modelli a pagamento confrontalo con la fattura del provider.
 
-La sezione **Ollama: stato del server** viene da `ollama-exporter/`, un piccolo exporter Python che legge `/api/ps` e `/api/tags` di Ollama sull'host (`host.docker.internal:11434`): modelli caricati, memoria, contesto, scadenza. Ollama non ha un endpoint `/metrics` ne' espone latenza o token/s per richiesta: servirebbe un proxy davanti a Ollama.
+La sezione **Ollama: stato del server** viene da `ollama-exporter/`, un piccolo exporter Python che legge `/api/ps` e `/api/tags` di Ollama sull'host (`host.docker.internal:11434`): modelli caricati, memoria, contesto, scadenza. Ollama non ha un endpoint `/metrics` ne' espone token o richieste.
+
+La sezione **Ollama: attivita' (proxy)** viene da `ollama-proxy`, un proxy Go di terzi ([elliotfehr/ollama-metrics-proxy](https://github.com/elliotfehr/ollama-metrics-proxy), MIT, compilato dal commit pinnato in `docker-compose.yml`). Ascolta su `127.0.0.1:11435` e inoltra a Ollama sull'host: conta richieste, richieste in corso e token (endpoint `/api/*`, `/v1/chat/completions`, `/v1/messages`). Vede **solo il traffico che lo attraversa**: punta i client sul proxy, per Claude Code `ANTHROPIC_BASE_URL=http://localhost:11435`. Token/s per richiesta e tempi di valutazione arrivano solo dagli endpoint nativi `/api/*`.
 
 ### Sessioni in container (claude-infrastructure-template)
 
@@ -190,6 +192,8 @@ Devono comparire, tra le altre, `claude_code_token_usage_tokens_total` e `claude
 | `claude_code_session_count_total` | |
 | `claude_code_active_time_seconds_total` | |
 | `claude_code_lines_of_code_count_total`, `claude_code_commit_count_total`, `claude_code_pull_request_count_total`, `claude_code_code_edit_tool_decision_total` | |
+| `ollama_requests_total`, `ollama_prompt_tokens_total`, `ollama_completion_tokens_total` (job `ollama-proxy`) | `model`, `endpoint` |
+| `ollama_active_requests`, `ollama_tokens_per_second` (job `ollama-proxy`) | `model`, `endpoint` |
 
 Il costo e' una stima calcolata dal client, vicina ma non identica alla fatturazione. Con i piani a limite settimanale conta il consumo, non i dollari: usalo come confronto relativo tra modelli, sessioni e subagent.
 

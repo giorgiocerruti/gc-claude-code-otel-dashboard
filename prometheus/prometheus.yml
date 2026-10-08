@@ -8,3 +8,6 @@ scrape_configs:
   - job_name: ollama
     static_configs:
       - targets: ["ollama-exporter:9778"]
+  - job_name: ollama-proxy
+    static_configs:
+      - targets: ["ollama-proxy:9836"]
