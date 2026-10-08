@@ -59,6 +59,8 @@ La dashboard e' [Claude Code Metrics (Prometheus)](https://grafana.com/grafana/d
    docker compose up -d --build
    ```
 
+   **Avvio automatico:** tutti i servizi hanno `restart: unless-stopped`, quindi ripartono con Docker. Perche' Docker parta al login, abilita in Docker Desktop *Settings > General > Start Docker Desktop when you sign in*. Dopo un `docker compose down` i servizi non ripartono da soli: rilancia `docker compose up -d`.
+
 2. Abilita la telemetria in Claude Code. Aggiungi queste variabili al blocco `env` di `~/.claude/settings.json` (vedi `settings.example.json`):
 
    ```json

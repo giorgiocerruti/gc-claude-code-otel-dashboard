@@ -996,7 +996,7 @@
    "id": 119,
    "type": "table",
    "title": "Progetto x agente x modello (costo nel periodo)",
-   "description": "",
+   "description": "Raggruppata per progetto (ordine alfabetico), dentro ogni progetto per costo decrescente.",
    "datasource": {
     "type": "prometheus",
     "uid": "prom"
@@ -1032,12 +1032,7 @@
    ],
    "options": {
     "showHeader": true,
-    "sortBy": [
-     {
-      "displayName": "Value",
-      "desc": true
-     }
-    ]
+    "sortBy": []
    },
    "transformations": [
     {
@@ -1046,12 +1041,33 @@
       "excludeByName": {
        "Time": true
       },
+      "indexByName": {
+       "project_name": 0,
+       "agent_name": 1,
+       "model": 2,
+       "Value": 3
+      },
       "renameByName": {
        "project_name": "Progetto",
        "agent_name": "Agente",
        "model": "Modello",
        "Value": "Costo"
       }
+     }
+    },
+    {
+     "id": "sortBy",
+     "options": {
+      "fields": {},
+      "sort": [
+       {
+        "field": "Progetto"
+       },
+       {
+        "field": "Costo",
+        "desc": true
+       }
+      ]
      }
     }
    ]
